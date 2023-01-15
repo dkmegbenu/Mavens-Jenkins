@@ -1,27 +1,44 @@
 pipeline {
     agent any
+    tools{
+        maven 'M2_HOME'
+    }
+    environment {
+    registry = '870342665742.dkr.ecr.us-east-1.amazonaws.com/devops_repository'
+    registryCredential = 'dee'
+    dockerimage = ''
+  }
     stages {
-        stage('Build') {
+        stage('Checkout'){
+            steps{
+                git branch: 'main', url: 'https://github.com/dkmegbenu/Mavens-Jenkins.git'
+            }
+        }
+        stage('Code Build') {
             steps {
-                echo 'Build Step'
-                sleep 10
+                sh 'mvn clean package'
             }
         }
         stage('Test') {
             steps {
-                echo 'Test step'
+                sh 'mvn test'
             }
         }
-        stage('Deploy') {
+        stage('Build Image') {
             steps {
-                echo 'Deploy Step'
-                sleep 10
+                script{
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                } 
             }
         }
-        stage('Docker') {
-            steps {
-                echo 'Image step'
+        stage('Deploy image') {
+            steps{
+                script{ 
+                    docker.withRegistry("https://"+registry,"ecr:us-east-1:"+registryCredential) {
+                        dockerImage.push()
+                    }
+                }
             }
-        }
+        }  
     }
 }
