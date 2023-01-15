@@ -1,6 +1,6 @@
 # Pull base image 
-FROM tomcat:8-jre8 
+FROM httpd 
 
 # Maintainer 
 MAINTAINER "dkmegbenu" 
-#COPY ./webapp.war /usr/local/tomcat/webapps
+#COPY /root/creative-studio/* /var/www/html
